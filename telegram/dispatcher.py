@@ -235,11 +235,14 @@ class Dispatcher:
         """
 
         handled = False
-
+        try:
+            in_conversation = update.message.chat_id in self.conversations
+        except:
+            in_conversation = False
         # Custom type handlers
         for t in self.type_handlers:
             if isinstance(update, t):
-                if not (t == Update and update.message.chat_id not in self.conversations):
+                if not (t == Update and not in_conversation):
                     self.dispatchType(update, context)
                     handled = True
 
@@ -257,27 +260,27 @@ class Dispatcher:
             handled = True
 
         # Telegram update (regex)
-        if isinstance(update, Update) and update.message.chat_id not in self.conversations:
+        if isinstance(update, Update) and not in_conversation:
             self.dispatchRegex(update, context)
             handled = True
 
         # Telegram update (command)
         if isinstance(update, Update) \
-                and update.message.text.startswith('/') and update.message.chat_id not in self.conversations:
+                and update.message.text.startswith('/') and not in_conversation:
             self.dispatchTelegramCommand(update, context)
             handled = True
 
         # Telegram update (conversation)
         if isinstance(update, Update):
-            if update.message.chat_id in self.conversations:
+            if in_conversation
                 self.dispatchConversation(update, context)
                 handled = True
-            elif update.message.text.startswith('/') and update.message.chat_id not in self.conversations:
+            elif update.message.text.startswith('/') and not in_conversation:
                 self.dispatchConversation(update, context)
                 handled = True
 
         # Telegram update (message)
-        elif isinstance(update, Update) and update.message.chat_id not in self.conversations:
+        elif isinstance(update, Update) and not in_conversation:
             self.dispatchTelegramMessage(update, context)
             handled = True
 
