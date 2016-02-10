@@ -272,7 +272,7 @@ class Dispatcher:
 
         # Telegram update (conversation)
         if isinstance(update, Update):
-            if in_conversation
+            if in_conversation:
                 self.dispatchConversation(update, context)
                 handled = True
             elif update.message.text.startswith('/') and not in_conversation:
